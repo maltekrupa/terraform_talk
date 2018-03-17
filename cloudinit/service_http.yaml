@@ -1,0 +1,58 @@
+#cloud-config
+groups:
+  - ops
+
+users:
+  - name: malte
+    primary-group: malte
+    groups: ops
+    shell: /bin/bash
+    ssh-authorized-keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO8/OFMet9Xbvx1fKbsoBTP5O9cWM+BGn93gqVGb+hCa malte
+    sudo:
+      - ALL=(ALL) NOPASSWD:ALL
+
+fqdn: ${hostname}
+
+write_files:
+  # Basic hosts configuration
+  - content: |
+      127.0.0.1       localhost
+      127.0.1.1       ${hostname}
+
+      # The following lines are desirable for IPv6 capable hosts
+      ::1     ip6-localhost ip6-loopback ${hostname}
+      fe00::0 ip6-localnet
+      ff00::0 ip6-mcastprefix
+      ff02::1 ip6-allnodes
+      ff02::2 ip6-allrouters
+      ff02::3 ip6-allhosts
+    path: /etc/hosts
+    permissions: '0644'
+
+  # Create systemd unit file for service_http
+  - content: |
+      [Unit]
+      Description=simple http service
+      After=network.target
+
+      [Service]
+      Type=simple
+      User=www-data
+      Group=www-data
+
+      ExecStart=/usr/local/bin/service_http
+
+      [Install]
+      WantedBy=multi-user.target
+    path: /lib/systemd/system/service_http.service
+    permissions: 0644
+
+runcmd:
+  # Download salt master keys
+  - [ 'wget', '-O', '/usr/local/bin/service_http', 'https://nafn.de/service_http' ]
+  - [ 'chown', 'www-data:www-data', '/usr/local/bin/service_http' ]
+  - [ 'chmod', '0755', '/usr/local/bin/service_http' ]
+  - [ 'systemctl', 'daemon-reload' ]
+  - [ 'systemctl', 'enable', 'service_http.service' ]
+  - [ 'systemctl', 'start', 'service_http.service' ]
