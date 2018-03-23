@@ -49,8 +49,7 @@ write_files:
     permissions: 0644
 
 runcmd:
-  # Download salt master keys
-  - [ 'wget', '-O', '/usr/local/bin/service_http', 'https://nafn.de/service_http' ]
+  - [ 'wget', '-O', '/usr/local/bin/service_http', 'https://github.com/temal-/service_http/releases/download/1.1/service_http_linux_amd64' ]
   - [ 'chown', 'www-data:www-data', '/usr/local/bin/service_http' ]
   - [ 'chmod', '0755', '/usr/local/bin/service_http' ]
   - [ 'systemctl', 'daemon-reload' ]

@@ -1,5 +1,5 @@
 variable "name" {
-  default = "vm"
+  default = "foo"
 }
 
 resource "digitalocean_droplet" "vm" {
